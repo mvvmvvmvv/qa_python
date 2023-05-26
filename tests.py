@@ -16,16 +16,33 @@ class TestBooksCollector:
 
         assert len(collector.get_books_rating()) == 2
 
-    # Проверка добавления книги
+    # Проверка добавления одной книги
     def test_add_new_book_book_successfully_added(self):
         collector = BooksCollector()
         book = 'На краю Ойкумены'
 
         collector.add_new_book(book)
 
-        for key in collector.get_books_rating():
-            assert key == book  # проверяем название книги
-            assert collector.get_books_rating()[key] == 1  # проверяем рейтинг по-умолчанию
+        assert len(collector.get_books_rating()) == 1
+
+    # Проверка добавления одной и той же книги дважды
+    def test_add_new_book_book_twice(self):
+        collector = BooksCollector()
+        book = 'На краю Ойкумены'
+
+        collector.add_new_book(book)
+        collector.add_new_book(book)
+
+        assert len(collector.get_books_rating()) == 1
+
+    # Проверка рейтинга по-умолчанию (1)
+    def test_add_new_book_book_default_rating_is_one(self):
+        collector = BooksCollector()
+        book = 'Лезвие бритвы'
+
+        collector.add_new_book(book)
+
+        assert collector.get_book_rating(book) == 1
 
     # Выставить рейтинг книге в списке
     def test_set_book_rating_happy_path(self):
@@ -42,21 +59,18 @@ class TestBooksCollector:
     def test_get_books_with_specific_rating_returns_books_with_rating_five(self):
         collector = BooksCollector()
         book_rating_1 = 'Что-то про WH40K'
-        book_rating_5_one = 'Град обреченный'
-        book_rating_5_two = 'Отель у погибшего альпиниста'
+        book_rating_5 = 'Град обреченный'
         book_rating_10 = "Город и звезды"
 
         collector.add_new_book(book_rating_1)
-        collector.add_new_book(book_rating_5_one)
-        collector.add_new_book(book_rating_5_two)
+        collector.add_new_book(book_rating_5)
         collector.add_new_book(book_rating_10)
 
         collector.set_book_rating(book_rating_1, 1)
-        collector.set_book_rating(book_rating_5_one, 5)
-        collector.set_book_rating(book_rating_5_two, 5)
+        collector.set_book_rating(book_rating_5, 5)
         collector.set_book_rating(book_rating_10, 10)
 
-        assert book_rating_5_one, book_rating_5_two in collector.get_books_with_specific_rating(5)
+        assert book_rating_5 in collector.get_books_with_specific_rating(5)
 
     # Добавление книги в избранное
     def test_add_book_in_favorites_happy_path(self):
@@ -75,9 +89,6 @@ class TestBooksCollector:
 
         collector.add_new_book(book)
         collector.add_book_in_favorites(book)
+        collector.delete_book_from_favorites(book)
 
-        if book in collector.get_list_of_favorites_books():
-            collector.delete_book_from_favorites(book)
-            assert book not in collector.get_list_of_favorites_books()
-        else:
-            print("Книга не была добавлена в Избранное")
+        assert book not in collector.get_list_of_favorites_books(), "Книга не была удалена из Избранного"
